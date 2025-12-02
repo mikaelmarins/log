@@ -1,0 +1,6 @@
+node_modules
+downloads
+debug_*
+*.log
+stop_system.bat
+.env
