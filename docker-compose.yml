@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  live-recorder:
+    build: .
+    container_name: live-recorder
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./downloads:/app/downloads
+      - ./config.json:/app/config.json
+      - ./cookies.json:/app/cookies.json
+      - ./status.json:/app/status.json
+    environment:
+      - NODE_ENV=production
+    # Increase shared memory size for Chrome/Puppeteer to prevent crashes
+    shm_size: '2gb'

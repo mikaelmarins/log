@@ -1,0 +1,13 @@
+{
+  "systemEnabled": true,
+  "cities": [
+    "Arraial do Cabo, RJ",
+    "Arraial do Cabo",
+    "Cabo Frio, RJ",
+    "Cabo Frio"
+  ],
+  "targetUsers": [],
+  "scanIntervalMinutes": 3,
+  "recordingDurationMinutes": 10,
+  "concurrentLimit": 5
+}
