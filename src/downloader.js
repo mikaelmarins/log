@@ -30,12 +30,17 @@ export async function downloadStream(streamInfo, outputPath) {
         const formattedHeaders = formatHeaders(headers);
 
         console.log('--- FFMPEG DEBUG ---');
-        console.log('Stream URL:', streamInfo.m3u8Url);
+        console.log('Original Stream URL:', streamInfo.m3u8Url);
+
+        // Route through local proxy to bypass TLS fingerprinting
+        const proxyUrl = `http://localhost:3001/?url=${encodeURIComponent(streamInfo.m3u8Url)}`;
+        console.log('Proxied URL:', proxyUrl);
+
         console.log('Headers String Length:', formattedHeaders.length);
         console.log('First 100 chars of headers:', formattedHeaders.substring(0, 100));
         console.log('--------------------');
 
-        const command = ffmpeg(streamInfo.m3u8Url)
+        const command = ffmpeg(proxyUrl)
             .inputOptions([
                 '-headers', formattedHeaders,
                 '-reconnect', '1',

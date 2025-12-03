@@ -4,6 +4,7 @@ import fs from 'fs';
 import path from 'path';
 import chalk from 'chalk';
 import { startServer } from './server.js';
+import { startProxy } from './proxy.js';
 
 // Load config
 const config = JSON.parse(fs.readFileSync('config.json', 'utf-8'));
@@ -11,8 +12,9 @@ const config = JSON.parse(fs.readFileSync('config.json', 'utf-8'));
 // Track active recordings: Map<username, ChildProcess>
 const activeRecordings = new Map();
 
-// Start Dashboard
+// Start Dashboard & Proxy
 startServer();
+startProxy();
 
 // Log Capture
 const logBuffer = [];
