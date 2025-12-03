@@ -40,6 +40,43 @@ export async function downloadStream(streamInfo, outputPath) {
             });
         }
 
+        // Set/Update critical headers in Title Case
+        if (streamInfo.referer) headers['Referer'] = streamInfo.referer;
+
+        // Ensure User-Agent is in headers and Title-Cased
+        headers['User-Agent'] = streamInfo.userAgent;
+        delete headers['user-agent']; // Remove lowercase variant if present
+
+        if (streamInfo.cookies && streamInfo.cookies.length > 0) {
+            const uniqueCookies = new Map();
+            streamInfo.cookies.forEach(c => uniqueCookies.set(c.name, c.value));
+            const cookieString = Array.from(uniqueCookies.entries()).map(([name, value]) => `${name}=${value}`).join('; ');
+            headers['Cookie'] = cookieString;
+        }
+
+        const formattedHeaders = formatHeaders(headers);
+
+        console.log('--- FFMPEG DEBUG ---');
+        console.log('Stream URL:', streamInfo.m3u8Url);
+        console.log('Headers String Length:', formattedHeaders.length);
+        console.log('First 100 chars of headers:', formattedHeaders.substring(0, 100));
+        console.log('--------------------');
+
+        const command = ffmpeg(streamInfo.m3u8Url)
+            .inputOptions([
+                '-headers', formattedHeaders,
+                '-reconnect', '1',
+                '-reconnect_at_eof', '1',
+                '-reconnect_streamed', '1',
+                '-reconnect_delay_max', '2',
+                '-timeout', '10000000' // 10s timeout
+            ])
+            .outputOptions([
+                '-c', 'copy',
+                '-bsf:a', 'aac_adtstoasc',
+                '-f', 'mpegts'
+            ]);
+
         if (streamInfo.duration) {
             // duration in seconds
             command.outputOptions(['-t', streamInfo.duration]);
