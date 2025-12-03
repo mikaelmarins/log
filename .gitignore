@@ -4,3 +4,4 @@ debug_*
 *.log
 stop_system.bat
 .env
+status.json
