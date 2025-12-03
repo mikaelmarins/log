@@ -24,7 +24,13 @@ export async function downloadStream(streamInfo, outputPath) {
             headers['Cookie'] = cookieString;
         }
 
-        console.log('Sending headers to ffmpeg:', Object.keys(headers));
+        console.log('--- FFMPEG DEBUG ---');
+        console.log('Stream URL:', streamInfo.m3u8Url);
+        console.log('User-Agent:', headers['User-Agent']);
+        console.log('Referer:', headers['Referer']);
+        console.log('Cookie Count:', streamInfo.cookies ? streamInfo.cookies.length : 0);
+        console.log('Full Headers:', JSON.stringify(headers, null, 2));
+        console.log('--------------------');
 
         const command = ffmpeg(streamInfo.m3u8Url)
             .inputOptions([
