@@ -12,6 +12,13 @@ export async function downloadStream(streamInfo, outputPath) {
         // Merge cookies into headers if present
         const headers = { ...streamInfo.headers };
 
+        // Remove risky Client Hint headers that might reveal automation or cause mismatches
+        Object.keys(headers).forEach(key => {
+            if (key.toLowerCase().startsWith('sec-ch-ua')) {
+                delete headers[key];
+            }
+        });
+
         // Add User-Agent and Referer if available
         if (streamInfo.userAgent) headers['User-Agent'] = streamInfo.userAgent;
         if (streamInfo.referer) headers['Referer'] = streamInfo.referer;
