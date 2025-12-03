@@ -12,6 +12,6 @@
     "kasalker77"
   ],
   "scanIntervalMinutes": 1,
-  "recordingDurationMinutes": 2,
+  "recordingDurationMinutes": 10,
   "concurrentLimit": 5
 }
