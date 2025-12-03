@@ -29,7 +29,11 @@ export async function downloadStream(streamInfo, outputPath) {
                     'content-type': 'Content-Type',
                     'cache-control': 'Cache-Control',
                     'pragma': 'Pragma',
-                    'upgrade-insecure-requests': 'Upgrade-Insecure-Requests'
+                    'upgrade-insecure-requests': 'Upgrade-Insecure-Requests',
+                    'sec-fetch-site': 'Sec-Fetch-Site',
+                    'sec-fetch-mode': 'Sec-Fetch-Mode',
+                    'sec-fetch-dest': 'Sec-Fetch-Dest',
+                    'sec-fetch-user': 'Sec-Fetch-User'
                 };
 
                 if (titleCaseMap[lowerKey]) {
@@ -39,6 +43,11 @@ export async function downloadStream(streamInfo, outputPath) {
                 }
             });
         }
+
+        // Add missing Sec-Fetch headers if not present (mimic standard navigation)
+        if (!headers['Sec-Fetch-Site']) headers['Sec-Fetch-Site'] = 'same-site';
+        if (!headers['Sec-Fetch-Mode']) headers['Sec-Fetch-Mode'] = 'cors';
+        if (!headers['Sec-Fetch-Dest']) headers['Sec-Fetch-Dest'] = 'empty';
 
         // Set/Update critical headers in Title Case
         if (streamInfo.referer) headers['Referer'] = streamInfo.referer;
