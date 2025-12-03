@@ -14,13 +14,41 @@ const activeRecordings = new Map();
 // Start Dashboard
 startServer();
 
+// Log Capture
+const logBuffer = [];
+const MAX_LOGS = 50;
+
+function captureLog(type, args) {
+    const msg = args.map(arg =>
+        typeof arg === 'object' ? JSON.stringify(arg) : String(arg)
+    ).join(' ');
+
+    const logEntry = `[${new Date().toLocaleTimeString()}] [${type.toUpperCase()}] ${msg}`;
+    logBuffer.unshift(logEntry);
+    if (logBuffer.length > MAX_LOGS) logBuffer.pop();
+}
+
+const originalLog = console.log;
+const originalError = console.error;
+
+console.log = (...args) => {
+    captureLog('info', args);
+    originalLog.apply(console, args);
+};
+
+console.error = (...args) => {
+    captureLog('error', args);
+    originalError.apply(console, args);
+};
+
 function updateStatus() {
     const status = {
         activeRecordings: Array.from(activeRecordings.keys()).map(username => ({
             username,
             startTime: Date.now() // Ideally track actual start time
         })),
-        lastScan: new Date().toISOString()
+        lastScan: new Date().toISOString(),
+        logs: logBuffer
     };
     fs.writeFileSync('status.json', JSON.stringify(status, null, 2));
 }
@@ -40,7 +68,16 @@ async function runCycle() {
         console.log(`Time: ${new Date().toLocaleTimeString()}`);
         updateStatus();
 
-        const candidates = await scanForLives();
+        console.log(`Time: ${new Date().toLocaleTimeString()}`);
+        updateStatus();
+
+        // Race between scan and a 10-minute timeout
+        const scanPromise = scanForLives();
+        const timeoutPromise = new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('Scan timed out after 10 minutes')), 10 * 60 * 1000)
+        );
+
+        const candidates = await Promise.race([scanPromise, timeoutPromise]);
 
         console.log(chalk.cyan(`Found ${candidates.length} candidates.`));
 
@@ -61,6 +98,7 @@ async function runCycle() {
         }
 
         console.log(chalk.blue('--- Cycle Finished ---'));
+        console.log(chalk.gray(`Waiting ${config.scanIntervalMinutes} minutes for next cycle...`));
         updateStatus();
     } catch (e) {
         console.error('Error in runCycle:', e);

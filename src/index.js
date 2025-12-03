@@ -78,12 +78,10 @@ const argv = yargs(hideBin(process.argv))
 
     let filename = argv.output;
     if (!filename) {
-      const now = new Date();
-      // Format time as HH-mm-ss
-      const timeString = now.toTimeString().split(' ')[0].replace(/:/g, '-');
       // Use username if available, otherwise 'live'
       const namePart = argv.username ? argv.username.replace(/[<>:"/\\|?*]/g, '').trim() : 'live';
-      filename = `${namePart}-${timeString}.mkv`;
+      // Use timestamp for unique, sortable filenames
+      filename = `${namePart}-${Date.now()}.mkv`;
     }
     const outputPath = path.join(downloadsDir, filename);
 

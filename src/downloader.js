@@ -12,12 +12,18 @@ export async function downloadStream(streamInfo, outputPath) {
         const command = ffmpeg(streamInfo.m3u8Url)
             .inputOptions([
                 '-headers', formatHeaders(streamInfo.headers),
-                '-fflags', '+genpts', // Generate PTS if missing
-                '-timeout', '60000000' // Timeout in microseconds (60s) to detect stream end
+                '-fflags', '+genpts+discardcorrupt',
+                '-use_wallclock_as_timestamps', '1',
+                '-async', '1',
+                '-timeout', '60000000'
             ])
             .outputOptions([
-                '-c', 'copy', // Copy streams
-                '-bsf:a', 'aac_adtstoasc' // Fix AAC bitstream for containers
+                '-c:v', 'libx264', // Transcode video to H.264
+                '-preset', 'ultrafast', // Low CPU usage
+                '-c:a', 'aac', // Transcode audio to AAC
+                '-b:a', '128k', // Audio bitrate
+                '-avoid_negative_ts', 'make_zero',
+                '-movflags', '+faststart'
             ]);
 
         if (streamInfo.duration) {

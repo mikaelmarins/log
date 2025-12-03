@@ -1,4 +1,77 @@
 {
-  "activeRecordings": [],
-  "lastScan": "2025-12-02T16:10:51.402Z"
+  "activeRecordings": [
+    {
+      "username": "putinha_corninho69",
+      "startTime": 1764724240178
+    },
+    {
+      "username": "kasalker77",
+      "startTime": 1764724240178
+    },
+    {
+      "username": "any75",
+      "startTime": 1764724240178
+    },
+    {
+      "username": "carol_ninfeta",
+      "startTime": 1764724240178
+    },
+    {
+      "username": "curiosa_spk",
+      "startTime": 1764724240178
+    }
+  ],
+  "lastScan": "2025-12-03T01:10:40.178Z",
+  "logs": [
+    "[22:10:40] [INFO] Time: 22:10:40",
+    "[22:10:40] [INFO] Time: 22:10:40",
+    "[22:10:40] [INFO] \u001b[34m--- Starting Scan Cycle ---\u001b[39m",
+    "[22:10:40] [INFO] \n[2025-12-03T01:10:40.176Z] Starting scan cycle...",
+    "[22:08:11] [INFO] \u001b[90mWaiting 3 minutes for next cycle...\u001b[39m",
+    "[22:08:11] [INFO] \u001b[34m--- Cycle Finished ---\u001b[39m",
+    "[22:08:11] [INFO] \u001b[31mConcurrent limit reached. Skipping remaining candidates.\u001b[39m",
+    "[22:08:11] [INFO] \u001b[33mSkipping curiosa_spk (Already recording)\u001b[39m",
+    "[22:08:11] [INFO] \u001b[33mSkipping any75 (Already recording)\u001b[39m",
+    "[22:08:11] [INFO] \u001b[36mFound 7 candidates.\u001b[39m",
+    "[22:08:11] [INFO] Returning 7 qualified lives.",
+    "[22:08:11] [INFO] [MATCH] casallg2023 - Loc: SP",
+    "[22:08:11] [INFO] [MATCH] carol_ninfeta - Loc: SP",
+    "[22:08:11] [INFO] [MATCH] kasalker77 is a TARGET USER.",
+    "[22:08:11] [INFO] [MATCH] putinha_corninho69 - Loc: SP",
+    "[22:08:11] [INFO] [MATCH] julinha84 - Loc: SP",
+    "[22:08:11] [INFO] [MATCH] curiosa_spk - Loc: SP",
+    "[22:08:11] [INFO] [MATCH] any75 - Loc: SP",
+    "[22:08:11] [INFO] Total unique potential lives found: 52",
+    "[22:08:11] [INFO] Found 52 items in casais.",
+    "[22:08:11] [INFO] DEBUG INFO for casais: {\n  \"title\": \"Livecam: Assista Sexo AO VIVO 🔴\",\n  \"bodyLength\": 402662,\n  \"liveCardCount\": 52,\n  \"videoLinkCount\": 0,\n  \"sampleUsername\": \"casalquermaispg69\"\n}",
+    "[22:08:10] [INFO] BROWSER LOG: console.clear",
+    "[22:08:10] [INFO] BROWSER LOG: %c JSHandle@regexp ",
+    "[22:08:09] [INFO] BROWSER LOG: console.clear",
+    "[22:08:09] [INFO] BROWSER LOG: %c JSHandle@regexp ",
+    "[22:08:08] [INFO] BROWSER LOG: console.clear",
+    "[22:08:08] [INFO] BROWSER LOG: %c JSHandle@regexp ",
+    "[22:08:07] [INFO] BROWSER LOG: console.clear",
+    "[22:08:07] [INFO] BROWSER LOG: %c JSHandle@regexp ",
+    "[22:08:06] [INFO] BROWSER LOG: console.clear",
+    "[22:08:06] [INFO] BROWSER LOG: %c JSHandle@regexp ",
+    "[22:08:05] [INFO] BROWSER LOG: console.clear",
+    "[22:08:05] [INFO] BROWSER LOG: %c JSHandle@regexp ",
+    "[22:08:04] [INFO] BROWSER LOG: console.clear",
+    "[22:08:04] [INFO] BROWSER LOG: %c JSHandle@regexp ",
+    "[22:08:03] [INFO] BROWSER LOG: console.clear",
+    "[22:08:03] [INFO] BROWSER LOG: %c JSHandle@regexp ",
+    "[22:08:02] [INFO] BROWSER LOG: console.clear",
+    "[22:08:02] [INFO] BROWSER LOG: %c JSHandle@regexp ",
+    "[22:08:01] [INFO] BROWSER LOG: console.clear",
+    "[22:08:01] [INFO] BROWSER LOG: %c JSHandle@regexp ",
+    "[22:08:00] [INFO] BROWSER LOG: The key \"\" is not recognized and ignored.",
+    "[22:08:00] [INFO] Scanning category: casais at https://www.sexlog.com/livecam/casais...",
+    "[22:08:00] [INFO] Found 5 items in mulheres.",
+    "[22:08:00] [INFO] DEBUG INFO for mulheres: {\n  \"title\": \"Mulheres Peladas Ao Vivo com Live Chat | Sexlog\",\n  \"bodyLength\": 89587,\n  \"liveCardCount\": 5,\n  \"videoLinkCount\": 0,\n  \"sampleUsername\": \"any75\"\n}",
+    "[22:08:00] [INFO] BROWSER LOG: console.clear",
+    "[22:08:00] [INFO] BROWSER LOG: %c JSHandle@regexp ",
+    "[22:07:59] [INFO] BROWSER LOG: console.clear",
+    "[22:07:59] [INFO] BROWSER LOG: %c JSHandle@regexp ",
+    "[22:07:58] [INFO] BROWSER LOG: console.clear"
+  ]
 }

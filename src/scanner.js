@@ -6,7 +6,14 @@ export async function scanForLives() {
     console.log('Starting scan...');
     const browser = await puppeteer.launch({
         headless: "new",
-        args: ['--no-sandbox', '--disable-setuid-sandbox']
+        executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || undefined,
+        args: [
+            '--no-sandbox',
+            '--disable-setuid-sandbox',
+            '--disable-gpu',
+            '--disable-dev-shm-usage',
+            '--no-zygote'
+        ]
     });
 
     try {
@@ -120,8 +127,8 @@ export async function scanForLives() {
                 const { items, debugInfo } = await page.evaluate(() => {
                     const items = [];
 
+                    // 1. Scrape Live Cards
                     const liveCards = document.querySelectorAll('button[data-testid="livecam-list__live-card"]');
-
                     liveCards.forEach(card => {
                         try {
                             const usernameEl = card.querySelector('[data-testid="livecam-list__live-card-login"]');
@@ -132,7 +139,6 @@ export async function scanForLives() {
                                 const username = usernameEl.innerText.trim();
                                 const location = locationEl ? locationEl.innerText.trim() : "Desconhecido";
                                 const gender = genderEl ? genderEl.innerText.trim() : "";
-
                                 const combinedInfo = `${location} ${gender}`;
 
                                 items.push({
@@ -145,6 +151,7 @@ export async function scanForLives() {
                         } catch (e) { }
                     });
 
+                    // 2. Scrape Video Links (Fallback)
                     const links = document.querySelectorAll('a[href*="/videos/"]');
                     links.forEach(el => {
                         const href = el.href;

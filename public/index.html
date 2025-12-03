@@ -53,18 +53,30 @@
                 Live Recorder Admin
             </h1>
             <div class="flex items-center gap-4">
-                <div class="flex items-center gap-2">
-                    <span class="text-sm text-gray-400">System:</span>
+                <div class="flex items-center gap-2 bg-gray-700/50 px-3 py-1 rounded-full">
+                    <span class="text-xs text-gray-400 uppercase font-bold tracking-wider">System</span>
                     <button id="system-toggle" onclick="toggleSystem()"
-                        class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 bg-gray-600">
+                        class="relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none bg-gray-600">
                         <span id="system-toggle-knob"
-                            class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform translate-x-1"></span>
+                            class="inline-block h-3 w-3 transform rounded-full bg-white transition-transform translate-x-1"></span>
                     </button>
-                    <span id="system-status-text" class="text-sm font-bold text-gray-400">OFF</span>
+                    <span id="system-status-text" class="text-xs font-bold text-gray-400">OFF</span>
                 </div>
-                <div class="h-4 w-px bg-gray-700"></div>
-                <div id="status-indicator" class="text-sm text-gray-400">
-                    Checking status...
+
+                <button onclick="openLogModal()"
+                    class="text-gray-400 hover:text-white transition-colors p-2 hover:bg-gray-700 rounded-full"
+                    title="View Logs">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                </button>
+
+                <div class="h-6 w-px bg-gray-700"></div>
+
+                <div id="status-indicator" class="text-xs text-gray-400 font-mono">
+                    Checking...
                 </div>
             </div>
         </div>
@@ -144,15 +156,46 @@
                     <h2 class="text-lg font-semibold text-purple-400">Library</h2>
                     <button onclick="loadRecordings()" class="text-sm text-gray-400 hover:text-white">Refresh</button>
                 </div>
-                <div id="recordings-list" class="space-y-3">
-                    <!-- Files injected here -->
+
+                <!-- User Grid -->
+                <div id="library-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- User Cards injected here -->
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Log Modal -->
+    <div id="log-modal" class="fixed inset-0 bg-black/80 hidden items-center justify-center z-50 backdrop-blur-sm">
+        <div
+            class="bg-gray-900 rounded-lg shadow-2xl w-full max-w-4xl max-h-[80vh] flex flex-col border border-gray-700 m-4">
+            <div class="p-4 border-b border-gray-700 flex justify-between items-center bg-gray-800 rounded-t-lg">
+                <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none"
+                        viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    System Logs
+                </h3>
+                <button onclick="closeLogModal()"
+                    class="text-gray-400 hover:text-white text-2xl leading-none">&times;</button>
+            </div>
+            <div id="log-container"
+                class="p-4 overflow-y-auto font-mono text-xs space-y-1 bg-black text-green-400 flex-1">
+                <!-- Logs injected here -->
+                <div class="text-gray-500 italic">Waiting for logs...</div>
+            </div>
+            <div class="p-3 border-t border-gray-700 bg-gray-800 rounded-b-lg flex justify-end">
+                <button onclick="closeLogModal()"
+                    class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded text-sm transition-colors">Close</button>
             </div>
         </div>
     </div>
 
     <script>
         let systemEnabled = true;
+        let isLogModalOpen = false;
 
         // API Interactions
         async function loadConfig() {
@@ -196,42 +239,120 @@
                 }
 
                 document.getElementById('status-indicator').innerText = `Last Scan: ${status.lastScan ? new Date(status.lastScan).toLocaleTimeString() : 'Never'}`;
+
+                if (isLogModalOpen && status.logs) {
+                    renderLogs(status.logs);
+                }
             } catch (e) {
                 console.error("Failed to load status", e);
             }
         }
 
+        function renderLogs(logs) {
+            const container = document.getElementById('log-container');
+            if (!logs || logs.length === 0) {
+                container.innerHTML = '<div class="text-gray-500 italic">No logs available.</div>';
+                return;
+            }
+            container.innerHTML = logs.map(log => {
+                const isError = log.includes('[ERROR]');
+                const colorClass = isError ? 'text-red-400' : 'text-green-400';
+                return `<div class="${colorClass} border-b border-gray-900/50 pb-1 mb-1 break-all">${log}</div>`;
+            }).join('');
+        }
+
+        function openLogModal() {
+            document.getElementById('log-modal').classList.remove('hidden');
+            document.getElementById('log-modal').classList.add('flex');
+            isLogModalOpen = true;
+            loadStatus(); // Force immediate update
+        }
+
+        function closeLogModal() {
+            document.getElementById('log-modal').classList.add('hidden');
+            document.getElementById('log-modal').classList.remove('flex');
+            isLogModalOpen = false;
+        }
+
         async function loadRecordings() {
             try {
                 const res = await fetch('/api/recordings');
-                const files = await res.json();
+                const cities = await res.json();
 
-                const container = document.getElementById('recordings-list');
-                if (files.length === 0) {
-                    container.innerHTML = '<div class="text-gray-500 text-sm italic">No files found.</div>';
+                const container = document.getElementById('library-grid');
+                if (cities.length === 0) {
+                    container.innerHTML = '<div class="text-gray-500 text-sm italic col-span-full">No recordings found.</div>';
                     return;
                 }
 
-                container.innerHTML = files.map(file => `
-                    <div class="bg-gray-700/30 p-3 rounded border border-gray-600 hover:bg-gray-700/50 transition-colors flex justify-between items-center">
-                        <div class="flex items-center gap-3">
-                            <div class="bg-purple-500/20 p-2 rounded text-purple-400">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                    <path d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14.553 7.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z" />
-                                </svg>
-                            </div>
-                            <div>
-                                <div class="font-medium text-gray-200">${file.name}</div>
-                                <div class="text-xs text-gray-400">${(file.size / 1024 / 1024).toFixed(2)} MB • ${new Date(file.date).toLocaleString()}</div>
-                            </div>
+                // Clear container and remove grid class for section-based layout
+                container.className = "space-y-8";
+                container.innerHTML = cities.map(cityGroup => `
+                    <div class="bg-gray-800/50 rounded-lg border border-gray-700 p-4">
+                        <h3 class="text-xl font-bold text-blue-400 mb-4 flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
+                            </svg>
+                            ${cityGroup.city}
+                        </h3>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            ${cityGroup.users.map(user => `
+                                <div class="bg-gray-700/30 rounded border border-gray-600 overflow-hidden">
+                                    <div class="p-4 flex justify-between items-start bg-gray-700/50">
+                                        <div>
+                                            <h4 class="font-bold text-white text-lg">${user.username}</h4>
+                                            <div class="text-xs text-gray-400 mt-1">
+                                                ${user.files.length} videos • ${(user.totalSize / 1024 / 1024).toFixed(2)} MB
+                                            </div>
+                                            <div class="text-xs text-gray-500">
+                                                Last: ${new Date(user.lastRecording).toLocaleString()}
+                                            </div>
+                                        </div>
+                                        <button onclick="toggleUserFiles('${user.username}')" class="text-gray-400 hover:text-white">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transform transition-transform" id="arrow-${user.username}" viewBox="0 0 20 20" fill="currentColor">
+                                                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                    <div id="files-${user.username}" class="hidden border-t border-gray-600 bg-black/20">
+                                        <div class="max-h-60 overflow-y-auto p-2 space-y-2">
+                                            ${user.files.map(file => `
+                                                <div class="flex justify-between items-center p-2 hover:bg-white/5 rounded text-sm group">
+                                                    <div class="truncate flex-1 pr-4">
+                                                        <div class="text-gray-300 truncate" title="${file.name}">${file.name}</div>
+                                                        <div class="text-xs text-gray-500">${new Date(file.date).toLocaleString()} • ${(file.size / 1024 / 1024).toFixed(2)} MB</div>
+                                                    </div>
+                                                    <a href="${file.path}" download="${file.name}" class="text-blue-400 hover:text-blue-300 opacity-0 group-hover:opacity-100 transition-opacity px-2 py-1 border border-blue-500/30 rounded text-xs flex items-center gap-1">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
+                                                            <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                                        </svg>
+                                                        Download
+                                                    </a>
+                                                </div>
+                                            `).join('')}
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('')}
                         </div>
-                        <a href="${file.path}" target="_blank" class="text-blue-400 hover:text-blue-300 text-sm font-medium px-3 py-1 rounded border border-blue-500/30 hover:bg-blue-500/10">
-                            Download
-                        </a>
                     </div>
                 `).join('');
             } catch (e) {
                 console.error("Failed to load recordings", e);
+            }
+        }
+
+        function toggleUserFiles(username) {
+            const filesDiv = document.getElementById(`files-${username}`);
+            const arrow = document.getElementById(`arrow-${username}`);
+
+            if (filesDiv.classList.contains('hidden')) {
+                filesDiv.classList.remove('hidden');
+                arrow.classList.add('rotate-180');
+            } else {
+                filesDiv.classList.add('hidden');
+                arrow.classList.remove('rotate-180');
             }
         }
 

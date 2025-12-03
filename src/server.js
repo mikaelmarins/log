@@ -11,6 +11,7 @@ const port = 3000;
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '../public')));
+app.use('/downloads', express.static(path.join(__dirname, '../downloads')));
 
 // Mock status for now, ideally this should be shared with manager.js
 // We might need to run manager.js INSIDE server.js or communicate via file/db
@@ -108,7 +109,8 @@ app.get('/api/recordings', (req, res) => {
         return res.json([]);
     }
 
-    const files = [];
+    const cityMap = new Map();
+
     // Recursive function to find files
     function scanDir(dir) {
         const items = fs.readdirSync(dir);
@@ -118,12 +120,48 @@ app.get('/api/recordings', (req, res) => {
                 scanDir(fullPath);
             } else {
                 if (item.endsWith('.mkv') || item.endsWith('.mp4')) {
-                    files.push({
+                    // Structure: downloads/City/Username/File.mkv
+                    const relativePath = path.relative(downloadsDir, fullPath);
+                    const parts = relativePath.split(path.sep);
+
+                    let city = 'Unknown';
+                    let username = 'Unknown';
+
+                    if (parts.length >= 3) {
+                        city = parts[0];
+                        username = parts[1];
+                    } else if (parts.length === 2) {
+                        username = parts[0];
+                    }
+
+                    const stats = fs.statSync(fullPath);
+                    const fileData = {
                         name: item,
-                        path: path.relative(downloadsDir, fullPath),
-                        size: fs.statSync(fullPath).size,
-                        date: fs.statSync(fullPath).mtime
-                    });
+                        path: `/downloads/${relativePath.replace(/\\/g, '/')}`, // Web-accessible path
+                        size: stats.size,
+                        date: stats.mtime
+                    };
+
+                    if (!cityMap.has(city)) {
+                        cityMap.set(city, new Map());
+                    }
+                    const usersMap = cityMap.get(city);
+
+                    if (!usersMap.has(username)) {
+                        usersMap.set(username, {
+                            username,
+                            files: [],
+                            totalSize: 0,
+                            lastRecording: new Date(0)
+                        });
+                    }
+
+                    const userEntry = usersMap.get(username);
+                    userEntry.files.push(fileData);
+                    userEntry.totalSize += stats.size;
+                    if (stats.mtime > userEntry.lastRecording) {
+                        userEntry.lastRecording = stats.mtime;
+                    }
                 }
             }
         });
@@ -131,10 +169,23 @@ app.get('/api/recordings', (req, res) => {
 
     try {
         scanDir(downloadsDir);
-        // Sort by date desc
-        files.sort((a, b) => new Date(b.date) - new Date(a.date));
-        res.json(files);
+
+        // Convert Maps to Sorted Arrays
+        const result = Array.from(cityMap.entries()).map(([cityName, usersMap]) => {
+            const users = Array.from(usersMap.values()).map(u => {
+                u.files.sort((a, b) => new Date(b.date) - new Date(a.date));
+                return u;
+            }).sort((a, b) => new Date(b.lastRecording) - new Date(a.lastRecording));
+
+            return {
+                city: cityName,
+                users: users
+            };
+        }).sort((a, b) => a.city.localeCompare(b.city));
+
+        res.json(result);
     } catch (e) {
+        console.error(e);
         res.json([]);
     }
 });
