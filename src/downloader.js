@@ -28,7 +28,6 @@ export async function downloadStream(streamInfo, outputPath) {
 
         const command = ffmpeg(streamInfo.m3u8Url)
             .inputOptions([
-                '-user_agent', streamInfo.userAgent || 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
                 '-headers', formatHeaders(headers),
                 '-timeout', '10000000' // 10s timeout
             ])
