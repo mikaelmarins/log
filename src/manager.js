@@ -13,7 +13,10 @@ const config = JSON.parse(fs.readFileSync('config.json', 'utf-8'));
 const activeRecordings = new Map();
 
 // Start Dashboard & Proxy
+// Start Dashboard & Proxy
+console.log('Starting Dashboard Server...');
 startServer();
+console.log('Starting Local Proxy...');
 startProxy();
 
 // Log Capture
