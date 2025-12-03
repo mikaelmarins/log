@@ -2,6 +2,8 @@ import puppeteer from 'puppeteer';
 import fs from 'fs';
 
 export async function detectStream(url, updateStatus) {
+    const userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
+
     console.log('Launching browser...');
     const browser = await puppeteer.launch({
         headless: "new",
@@ -13,14 +15,14 @@ export async function detectStream(url, updateStatus) {
             '--no-first-run',
             '--no-zygote',
             '--single-process',
-            '--disable-gpu'
+            '--disable-gpu',
+            `--user-agent=${userAgent}` // Force UA at launch
         ],
         executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium'
     });
 
     const page = await browser.newPage();
-    const userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
-    await page.setUserAgent(userAgent);
+    // await page.setUserAgent(userAgent); // Redundant but harmless, keeping launch arg as primary
     console.log(`User-Agent set to: ${userAgent}`);
 
     // Load cookies if available
