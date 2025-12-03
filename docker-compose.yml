@@ -15,4 +15,13 @@ services:
     environment:
       - NODE_ENV=production
     # Increase shared memory size for Chrome/Puppeteer to prevent crashes
+    # Increase shared memory size for Chrome/Puppeteer to prevent crashes
     shm_size: '2gb'
+    networks:
+      - default
+      - npm_network
+
+networks:
+  npm_network:
+    name: npm_npm-network
+    external: true
