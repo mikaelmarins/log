@@ -33,7 +33,7 @@ export async function downloadStream(streamInfo, outputPath) {
         console.log('Original Stream URL:', streamInfo.m3u8Url);
 
         // Route through local proxy to bypass TLS fingerprinting
-        const proxyUrl = `http://localhost:3001/?url=${encodeURIComponent(streamInfo.m3u8Url)}`;
+        const proxyUrl = `http://127.0.0.1:3001/?url=${encodeURIComponent(streamInfo.m3u8Url)}`;
         console.log('Proxied URL:', proxyUrl);
 
         console.log('Headers String Length:', formattedHeaders.length);
