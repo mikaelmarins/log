@@ -356,6 +356,38 @@
             }
         }
 
+        async function downloadAllUserFiles(username, city) {
+            try {
+                const res = await fetch('/api/recordings');
+                const cities = await res.json();
+
+                const cityGroup = cities.find(c => c.city === city);
+                if (!cityGroup) return;
+
+                const user = cityGroup.users.find(u => u.username === username);
+                if (!user || !user.files.length) return;
+
+                // Download each file with a small delay
+                for (let i = 0; i < user.files.length; i++) {
+                    const file = user.files[i];
+                    const link = document.createElement('a');
+                    link.href = file.path;
+                    link.download = file.name;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+
+                    // Small delay between downloads to avoid browser blocking
+                    if (i < user.files.length - 1) {
+                        await new Promise(resolve => setTimeout(resolve, 500));
+                    }
+                }
+            } catch (e) {
+                console.error('Failed to download all files', e);
+            }
+        }
+
+
         // Actions
         async function toggleSystem() {
             const newState = !systemEnabled;
