@@ -35,10 +35,15 @@ export async function downloadStream(streamInfo, outputPath) {
         console.log('Using local proxy for TLS bypass');
         console.log('--------------------');
 
-        // Use the original URL - the http_proxy option will route through our proxy
+        // Set proxy environment variables for ffmpeg to use
+        process.env.HTTP_PROXY = 'http://127.0.0.1:3001';
+        process.env.HTTPS_PROXY = 'http://127.0.0.1:3001';
+        process.env.http_proxy = 'http://127.0.0.1:3001';
+        process.env.https_proxy = 'http://127.0.0.1:3001';
+
+        // Use the original URL - environment variables will route through proxy
         const command = ffmpeg(streamInfo.m3u8Url)
             .inputOptions([
-                '-http_proxy', 'http://127.0.0.1:3001',  // Route ALL HTTP(S) requests through proxy
                 '-headers', formattedHeaders,
                 '-reconnect', '1',
                 '-reconnect_at_eof', '1',
