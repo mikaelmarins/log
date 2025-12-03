@@ -9,30 +9,33 @@ export async function downloadStream(streamInfo, outputPath) {
     return new Promise((resolve, reject) => {
         let ffmpegProcess = null;
 
-        // Merge cookies into headers if present
-        const headers = { ...streamInfo.headers };
+        // Normalize headers to lowercase to avoid duplicates (e.g., 'Referer' vs 'referer')
+        const headers = {};
+        if (streamInfo.headers) {
+            Object.entries(streamInfo.headers).forEach(([key, value]) => {
+                headers[key.toLowerCase()] = value;
+            });
+        }
 
-        // Remove risky Client Hint headers that might reveal automation or cause mismatches
+        // Remove risky headers
         Object.keys(headers).forEach(key => {
-            if (key.toLowerCase().startsWith('sec-ch-ua')) {
+            if (key.startsWith('sec-ch-ua') || key === 'host' || key === 'connection') {
                 delete headers[key];
             }
         });
 
-        // Add Referer if available
-        if (streamInfo.referer) headers['Referer'] = streamInfo.referer;
+        // Set/Update critical headers
+        if (streamInfo.referer) headers['referer'] = streamInfo.referer;
+
+        // Remove User-Agent from headers (will use flag)
+        delete headers['user-agent'];
 
         if (streamInfo.cookies && streamInfo.cookies.length > 0) {
-            // Deduplicate cookies by name
             const uniqueCookies = new Map();
             streamInfo.cookies.forEach(c => uniqueCookies.set(c.name, c.value));
             const cookieString = Array.from(uniqueCookies.entries()).map(([name, value]) => `${name}=${value}`).join('; ');
-            headers['Cookie'] = cookieString;
+            headers['cookie'] = cookieString;
         }
-
-        // Ensure User-Agent is NOT in headers to avoid duplication with -user_agent flag
-        delete headers['User-Agent'];
-        delete headers['user-agent'];
 
         console.log('--- FFMPEG DEBUG ---');
         console.log('Stream URL:', streamInfo.m3u8Url);
