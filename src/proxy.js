@@ -5,14 +5,22 @@ import { URL } from 'url';
 const PORT = 3001;
 
 const server = http.createServer((req, res) => {
-    // URL to proxy is passed as a query param 'url'
-    const reqUrl = new URL(req.url, `http://${req.headers.host}`);
-    const targetUrlStr = reqUrl.searchParams.get('url');
+    let targetUrlStr;
 
-    if (!targetUrlStr) {
-        console.error('[Proxy] Missing "url" parameter');
+    // Check if URL is provided as query parameter (old way)
+    const reqUrl = new URL(req.url, `http://${req.headers.host}`);
+    const urlParam = reqUrl.searchParams.get('url');
+
+    if (urlParam) {
+        // Query parameter style: /?url=https://...
+        targetUrlStr = urlParam;
+    } else if (req.url.startsWith('http://') || req.url.startsWith('https://')) {
+        // Direct proxy style: ffmpeg sends full URL in request
+        targetUrlStr = req.url;
+    } else {
+        console.error('[Proxy] Invalid request:', req.url);
         res.writeHead(400);
-        res.end('Missing "url" query parameter');
+        res.end('Invalid proxy request');
         return;
     }
 
@@ -24,6 +32,7 @@ const server = http.createServer((req, res) => {
         // Copy headers from the incoming request (ffmpeg) to the outgoing request
         const headers = { ...req.headers };
         delete headers.host; // Let the request set the host
+        delete headers['proxy-connection']; // Remove proxy-specific headers
 
         const options = {
             hostname: targetUrl.hostname,
