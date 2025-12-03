@@ -9,9 +9,16 @@ export async function downloadStream(streamInfo, outputPath) {
     return new Promise((resolve, reject) => {
         let ffmpegProcess = null;
 
+        // Merge cookies into headers if present
+        const headers = { ...streamInfo.headers };
+        if (streamInfo.cookies && streamInfo.cookies.length > 0) {
+            const cookieString = streamInfo.cookies.map(c => `${c.name}=${c.value}`).join('; ');
+            headers['Cookie'] = cookieString;
+        }
+
         const command = ffmpeg(streamInfo.m3u8Url)
             .inputOptions([
-                '-headers', formatHeaders(streamInfo.headers),
+                '-headers', formatHeaders(headers),
                 '-fflags', '+genpts+discardcorrupt',
                 '-use_wallclock_as_timestamps', '1',
                 '-async', '1',
