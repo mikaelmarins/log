@@ -119,7 +119,7 @@ app.get('/api/recordings', (req, res) => {
             if (fs.statSync(fullPath).isDirectory()) {
                 scanDir(fullPath);
             } else {
-                if (item.endsWith('.mkv') || item.endsWith('.mp4')) {
+                if (item.endsWith('.mkv') || item.endsWith('.mp4') || item.endsWith('.ts')) {
                     // Structure: downloads/City/Username/File.mkv
                     const relativePath = path.relative(downloadsDir, fullPath);
                     const parts = relativePath.split(path.sep);

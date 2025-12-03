@@ -4,10 +4,14 @@
     "Arraial do Cabo, RJ",
     "Arraial do Cabo",
     "Cabo Frio, RJ",
-    "Cabo Frio"
+    "Cabo Frio",
+    "SP"
   ],
-  "targetUsers": [],
-  "scanIntervalMinutes": 3,
-  "recordingDurationMinutes": 10,
+  "targetUsers": [
+    "branquinhahoot",
+    "kasalker77"
+  ],
+  "scanIntervalMinutes": 1,
+  "recordingDurationMinutes": 2,
   "concurrentLimit": 5
 }

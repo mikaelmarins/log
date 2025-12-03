@@ -81,7 +81,7 @@ const argv = yargs(hideBin(process.argv))
       // Use username if available, otherwise 'live'
       const namePart = argv.username ? argv.username.replace(/[<>:"/\\|?*]/g, '').trim() : 'live';
       // Use timestamp for unique, sortable filenames
-      filename = `${namePart}-${Date.now()}.mkv`;
+      filename = `${namePart}-${Date.now()}.ts`;
     }
     const outputPath = path.join(downloadsDir, filename);
 

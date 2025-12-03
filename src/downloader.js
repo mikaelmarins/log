@@ -18,12 +18,10 @@ export async function downloadStream(streamInfo, outputPath) {
                 '-timeout', '60000000'
             ])
             .outputOptions([
-                '-c:v', 'libx264', // Transcode video to H.264
-                '-preset', 'ultrafast', // Low CPU usage
-                '-c:a', 'aac', // Transcode audio to AAC
-                '-b:a', '128k', // Audio bitrate
-                '-avoid_negative_ts', 'make_zero',
-                '-movflags', '+faststart'
+                '-c', 'copy', // Copy streams directly (no re-encoding)
+                '-bsf:a', 'aac_adtstoasc', // Fix AAC bitstream
+                '-f', 'mpegts', // Use MPEG-TS container for robustness
+                '-avoid_negative_ts', 'make_zero'
             ]);
 
         if (streamInfo.duration) {
