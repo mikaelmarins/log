@@ -41,6 +41,7 @@ export async function downloadStream(streamInfo, outputPath) {
 
         const command = ffmpeg(streamInfo.m3u8Url)
             .inputOptions([
+                '-user_agent', headers['User-Agent'], // Explicitly override default UA
                 '-headers', formatHeaders(headers),
                 '-timeout', '10000000' // 10s timeout
             ])
