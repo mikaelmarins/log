@@ -33,11 +33,13 @@ export async function downloadStream(streamInfo, outputPath) {
         console.log('Original Stream URL:', streamInfo.m3u8Url);
         console.log('Headers String Length:', formattedHeaders.length);
         console.log('First 100 chars of headers:', formattedHeaders.substring(0, 100));
+        console.log('Using local proxy for TLS bypass');
         console.log('--------------------');
 
-        // Use the original URL - ffmpeg will handle HLS chunks automatically
+        // Use the original URL - the http_proxy option will route through our proxy
         const command = ffmpeg(streamInfo.m3u8Url)
             .inputOptions([
+                '-http_proxy', 'http://127.0.0.1:3001',  // Route ALL HTTP(S) requests through proxy
                 '-headers', formattedHeaders,
                 '-reconnect', '1',
                 '-reconnect_at_eof', '1',
