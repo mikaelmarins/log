@@ -11,50 +11,14 @@ export async function downloadStream(streamInfo, outputPath) {
 
         // Normalize headers to Title Case for critical ones to satisfy strict WAFs
         const headers = {};
-        if (streamInfo.headers) {
-            Object.entries(streamInfo.headers).forEach(([key, value]) => {
-                const lowerKey = key.toLowerCase();
 
-                // Skip headers we will set manually or that are risky
-                if (['referer', 'cookie', 'user-agent', 'host', 'connection'].includes(lowerKey) || lowerKey.startsWith('sec-ch-ua')) {
-                    return;
-                }
+        // SIMPLIFICATION ATTEMPT: Only send minimal headers to avoid "fake browser" detection
+        // if the TLS fingerprint doesn't match the User-Agent.
 
-                // Map common headers to Title-Case
-                const titleCaseMap = {
-                    'origin': 'Origin',
-                    'accept': 'Accept',
-                    'accept-encoding': 'Accept-Encoding',
-                    'accept-language': 'Accept-Language',
-                    'content-type': 'Content-Type',
-                    'cache-control': 'Cache-Control',
-                    'pragma': 'Pragma',
-                    'upgrade-insecure-requests': 'Upgrade-Insecure-Requests',
-                    'sec-fetch-site': 'Sec-Fetch-Site',
-                    'sec-fetch-mode': 'Sec-Fetch-Mode',
-                    'sec-fetch-dest': 'Sec-Fetch-Dest',
-                    'sec-fetch-user': 'Sec-Fetch-User'
-                };
-
-                if (titleCaseMap[lowerKey]) {
-                    headers[titleCaseMap[lowerKey]] = value;
-                } else {
-                    headers[key] = value; // Fallback to original
-                }
-            });
-        }
-
-        // Add missing Sec-Fetch headers if not present (mimic standard navigation)
-        if (!headers['Sec-Fetch-Site']) headers['Sec-Fetch-Site'] = 'same-site';
-        if (!headers['Sec-Fetch-Mode']) headers['Sec-Fetch-Mode'] = 'cors';
-        if (!headers['Sec-Fetch-Dest']) headers['Sec-Fetch-Dest'] = 'empty';
-
-        // Set/Update critical headers in Title Case
         if (streamInfo.referer) headers['Referer'] = streamInfo.referer;
 
-        // Ensure User-Agent is in headers and Title-Cased
-        headers['User-Agent'] = streamInfo.userAgent;
-        delete headers['user-agent']; // Remove lowercase variant if present
+        // Try WITHOUT User-Agent first (let ffmpeg use default or none)
+        // headers['User-Agent'] = streamInfo.userAgent; 
 
         if (streamInfo.cookies && streamInfo.cookies.length > 0) {
             const uniqueCookies = new Map();
