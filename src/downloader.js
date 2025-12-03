@@ -1,9 +1,8 @@
 import ffmpeg from 'fluent-ffmpeg';
-import ffmpegPath from 'ffmpeg-static';
 import chalk from 'chalk';
 
-// Set the ffmpeg path
-ffmpeg.setFfmpegPath(ffmpegPath);
+// Use system ffmpeg (installed via apt-get) instead of ffmpeg-static
+// This has better ARM support and proxy compatibility
 
 export async function downloadStream(streamInfo, outputPath) {
     return new Promise((resolve, reject) => {
