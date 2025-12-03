@@ -36,66 +36,68 @@ export async function downloadStream(streamInfo, outputPath) {
                     headers[titleCaseMap[lowerKey]] = value;
                 } else {
                     headers[key] = value; // Fallback to original
-            ]);
-
-            if (streamInfo.duration) {
-                // duration in seconds
-                command.outputOptions(['-t', streamInfo.duration]);
-            }
-
-            command.output(outputPath)
-                .on('start', (commandLine) => {
-                    console.log('Spawned Ffmpeg with command: ' + commandLine);
-                })
-                .on('codecData', (data) => {
-                    console.log('Input is ' + data.audio + ' audio ' +
-                        'with ' + data.video + ' video');
-                })
-                .on('progress', (progress) => {
-                    process.stdout.write(`\rRecording duration: ${chalk.bold(progress.timemark)}`);
-                })
-                .on('error', (err) => {
-                    if (err.message.includes('SIGINT') || err.message.includes('SIGTERM')) {
-                        console.log(chalk.green('\nRecording stopped by user (graceful).'));
-                        resolve();
-                    } else {
-                        console.error('\nError:', err.message);
-                        reject(err);
-                    }
-                })
-                .on('end', () => {
-                    console.log(chalk.green('\nStream recording finished!'));
-                    resolve();
-                });
-
-            // Save reference to the process
-            command.on('start', () => {
-                ffmpegProcess = command.ffmpegProc;
-            });
-
-            // Handle Ctrl+C gracefully
-            process.on('SIGINT', () => {
-                console.log(chalk.yellow('\nStopping recording...'));
-                if (ffmpegProcess) {
-                    // Try to send 'q' to stop cleanly
-                    try {
-                        ffmpegProcess.stdin.write('q');
-                    } catch (e) { }
-
-                    // Give it time to close
-                    setTimeout(() => {
-                        if (ffmpegProcess && !ffmpegProcess.killed) {
-                            console.log('Sending SIGTERM to ffmpeg...');
-                            command.kill('SIGTERM');
-                        }
-                    }, 2000);
-                } else {
-                    process.exit(0);
                 }
             });
+        }
 
-            command.run();
+        if (streamInfo.duration) {
+            // duration in seconds
+            command.outputOptions(['-t', streamInfo.duration]);
+        }
+
+        command.output(outputPath)
+            .on('start', (commandLine) => {
+                console.log('Spawned Ffmpeg with command: ' + commandLine);
+            })
+            .on('codecData', (data) => {
+                console.log('Input is ' + data.audio + ' audio ' +
+                    'with ' + data.video + ' video');
+            })
+            .on('progress', (progress) => {
+                process.stdout.write(`\rRecording duration: ${chalk.bold(progress.timemark)}`);
+            })
+            .on('error', (err) => {
+                if (err.message.includes('SIGINT') || err.message.includes('SIGTERM')) {
+                    console.log(chalk.green('\nRecording stopped by user (graceful).'));
+                    resolve();
+                } else {
+                    console.error('\nError:', err.message);
+                    reject(err);
+                }
+            })
+            .on('end', () => {
+                console.log(chalk.green('\nStream recording finished!'));
+                resolve();
+            });
+
+        // Save reference to the process
+        command.on('start', () => {
+            ffmpegProcess = command.ffmpegProc;
         });
+
+        // Handle Ctrl+C gracefully
+        process.on('SIGINT', () => {
+            console.log(chalk.yellow('\nStopping recording...'));
+            if (ffmpegProcess) {
+                // Try to send 'q' to stop cleanly
+                try {
+                    ffmpegProcess.stdin.write('q');
+                } catch (e) { }
+
+                // Give it time to close
+                setTimeout(() => {
+                    if (ffmpegProcess && !ffmpegProcess.killed) {
+                        console.log('Sending SIGTERM to ffmpeg...');
+                        command.kill('SIGTERM');
+                    }
+                }, 2000);
+            } else {
+                process.exit(0);
+            }
+        });
+
+        command.run();
+    });
 }
 
 function formatHeaders(headers) {
