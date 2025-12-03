@@ -20,6 +20,10 @@ services:
     networks:
       - default
       - npm_network
+    # Fix DNS resolution issues in isolated networks
+    dns:
+      - 8.8.8.8
+      - 1.1.1.1
 
 networks:
   npm_network:
