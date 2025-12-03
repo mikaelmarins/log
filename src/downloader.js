@@ -14,11 +14,29 @@ export async function downloadStream(streamInfo, outputPath) {
         if (streamInfo.headers) {
             Object.entries(streamInfo.headers).forEach(([key, value]) => {
                 const lowerKey = key.toLowerCase();
+
                 // Skip headers we will set manually or that are risky
-                if (lowerKey === 'referer' || lowerKey === 'cookie' || lowerKey === 'user-agent' || lowerKey.startsWith('sec-ch-ua') || lowerKey === 'host' || lowerKey === 'connection') {
+                if (['referer', 'cookie', 'user-agent', 'host', 'connection'].includes(lowerKey) || lowerKey.startsWith('sec-ch-ua')) {
                     return;
                 }
-                headers[key] = value;
+
+                // Map common headers to Title-Case
+                const titleCaseMap = {
+                    'origin': 'Origin',
+                    'accept': 'Accept',
+                    'accept-encoding': 'Accept-Encoding',
+                    'accept-language': 'Accept-Language',
+                    'content-type': 'Content-Type',
+                    'cache-control': 'Cache-Control',
+                    'pragma': 'Pragma',
+                    'upgrade-insecure-requests': 'Upgrade-Insecure-Requests'
+                };
+
+                if (titleCaseMap[lowerKey]) {
+                    headers[titleCaseMap[lowerKey]] = value;
+                } else {
+                    headers[key] = value; // Fallback to original
+                }
             });
         }
 
