@@ -118,8 +118,22 @@ function startRecording(username, location, url) {
     ];
 
     const child = spawn('node', args, {
-        stdio: 'inherit',
+        stdio: ['ignore', 'pipe', 'pipe'],
         shell: true
+    });
+
+    child.stdout.on('data', (data) => {
+        const lines = data.toString().split('\n');
+        lines.forEach(line => {
+            if (line.trim()) console.log(`[${username}] ${line.trim()}`);
+        });
+    });
+
+    child.stderr.on('data', (data) => {
+        const lines = data.toString().split('\n');
+        lines.forEach(line => {
+            if (line.trim()) console.error(`[${username}] ${line.trim()}`);
+        });
     });
 
     activeRecordings.set(username, child);

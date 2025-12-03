@@ -9,31 +9,15 @@ export async function downloadStream(streamInfo, outputPath) {
     return new Promise((resolve, reject) => {
         let ffmpegProcess = null;
 
-        // Merge cookies into headers if present
-        const headers = { ...streamInfo.headers };
-        if (streamInfo.cookies && streamInfo.cookies.length > 0) {
-            // Deduplicate cookies by name
-            const uniqueCookies = new Map();
-            streamInfo.cookies.forEach(c => uniqueCookies.set(c.name, c.value));
-            const cookieString = Array.from(uniqueCookies.entries()).map(([name, value]) => `${name}=${value}`).join('; ');
-            headers['Cookie'] = cookieString;
-        }
-
-        console.log('Sending headers to ffmpeg:', Object.keys(headers));
-
         const command = ffmpeg(streamInfo.m3u8Url)
             .inputOptions([
-                '-headers', formatHeaders(headers),
-                '-fflags', '+genpts+discardcorrupt',
-                '-use_wallclock_as_timestamps', '1',
-                '-async', '1',
-                '-timeout', '60000000'
+                '-headers', formatHeaders(streamInfo.headers),
+                '-timeout', '10000000' // 10s timeout
             ])
             .outputOptions([
-                '-c', 'copy', // Copy streams directly (no re-encoding)
-                '-bsf:a', 'aac_adtstoasc', // Fix AAC bitstream
-                '-f', 'mpegts', // Use MPEG-TS container for robustness
-                '-avoid_negative_ts', 'make_zero'
+                '-c', 'copy',
+                '-bsf:a', 'aac_adtstoasc',
+                '-f', 'mpegts'
             ]);
 
         if (streamInfo.duration) {
