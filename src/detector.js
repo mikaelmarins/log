@@ -40,6 +40,8 @@ export async function detectStream(url, updateStatus) {
                 streamInfo = {
                     m3u8Url: responseUrl,
                     headers: response.request().headers(),
+                    userAgent: await page.browser().userAgent(),
+                    referer: page.url(),
                     cookies: [
                         ...(await page.cookies()),
                         ...(await page.cookies(responseUrl))

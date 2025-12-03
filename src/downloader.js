@@ -11,6 +11,11 @@ export async function downloadStream(streamInfo, outputPath) {
 
         // Merge cookies into headers if present
         const headers = { ...streamInfo.headers };
+
+        // Add User-Agent and Referer if available
+        if (streamInfo.userAgent) headers['User-Agent'] = streamInfo.userAgent;
+        if (streamInfo.referer) headers['Referer'] = streamInfo.referer;
+
         if (streamInfo.cookies && streamInfo.cookies.length > 0) {
             // Deduplicate cookies by name
             const uniqueCookies = new Map();
@@ -19,8 +24,11 @@ export async function downloadStream(streamInfo, outputPath) {
             headers['Cookie'] = cookieString;
         }
 
+        console.log('Sending headers to ffmpeg:', Object.keys(headers));
+
         const command = ffmpeg(streamInfo.m3u8Url)
             .inputOptions([
+                '-user_agent', streamInfo.userAgent || 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
                 '-headers', formatHeaders(headers),
                 '-timeout', '10000000' // 10s timeout
             ])
