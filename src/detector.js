@@ -40,8 +40,12 @@ export async function detectStream(url, updateStatus) {
                 streamInfo = {
                     m3u8Url: responseUrl,
                     headers: response.request().headers(),
-                    cookies: await page.cookies()
+                    cookies: [
+                        ...(await page.cookies()),
+                        ...(await page.cookies(responseUrl))
+                    ]
                 };
+                console.log(`Detector captured ${streamInfo.cookies.length} cookies.`);
             }
         }
     });

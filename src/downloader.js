@@ -12,9 +12,14 @@ export async function downloadStream(streamInfo, outputPath) {
         // Merge cookies into headers if present
         const headers = { ...streamInfo.headers };
         if (streamInfo.cookies && streamInfo.cookies.length > 0) {
-            const cookieString = streamInfo.cookies.map(c => `${c.name}=${c.value}`).join('; ');
+            // Deduplicate cookies by name
+            const uniqueCookies = new Map();
+            streamInfo.cookies.forEach(c => uniqueCookies.set(c.name, c.value));
+            const cookieString = Array.from(uniqueCookies.entries()).map(([name, value]) => `${name}=${value}`).join('; ');
             headers['Cookie'] = cookieString;
         }
+
+        console.log('Sending headers to ffmpeg:', Object.keys(headers));
 
         const command = ffmpeg(streamInfo.m3u8Url)
             .inputOptions([
