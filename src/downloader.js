@@ -19,8 +19,7 @@ export async function downloadStream(streamInfo, outputPath) {
             }
         });
 
-        // Add User-Agent and Referer if available
-        if (streamInfo.userAgent) headers['User-Agent'] = streamInfo.userAgent;
+        // Add Referer if available
         if (streamInfo.referer) headers['Referer'] = streamInfo.referer;
 
         if (streamInfo.cookies && streamInfo.cookies.length > 0) {
@@ -31,17 +30,21 @@ export async function downloadStream(streamInfo, outputPath) {
             headers['Cookie'] = cookieString;
         }
 
+        // Ensure User-Agent is NOT in headers to avoid duplication with -user_agent flag
+        delete headers['User-Agent'];
+        delete headers['user-agent'];
+
         console.log('--- FFMPEG DEBUG ---');
         console.log('Stream URL:', streamInfo.m3u8Url);
-        console.log('User-Agent:', headers['User-Agent']);
+        console.log('User-Agent (Flag):', streamInfo.userAgent);
         console.log('Referer:', headers['Referer']);
         console.log('Cookie Count:', streamInfo.cookies ? streamInfo.cookies.length : 0);
-        console.log('Full Headers:', JSON.stringify(headers, null, 2));
+        console.log('Full Headers (excluding UA):', JSON.stringify(headers, null, 2));
         console.log('--------------------');
 
         const command = ffmpeg(streamInfo.m3u8Url)
             .inputOptions([
-                '-user_agent', headers['User-Agent'], // Explicitly override default UA
+                '-user_agent', streamInfo.userAgent, // Explicitly override default UA
                 '-headers', formatHeaders(headers),
                 '-timeout', '10000000' // 10s timeout
             ])
