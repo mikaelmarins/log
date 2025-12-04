@@ -6,100 +6,58 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Live Recorder Admin</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        gray: {
-                            900: '#1a1a1a',
-                            800: '#2d2d2d',
-                            700: '#404040',
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        /* Custom scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: #1a1a1a;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: #404040;
-            border-radius: 4px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: #505050;
-        }
-    </style>
 </head>
 
-<body class="bg-gray-900 text-white min-h-screen font-sans">
-
-    <!-- Navbar -->
-    <nav class="bg-gray-800 border-b border-gray-700 p-4 sticky top-0 z-50">
+<body class="bg-gray-900 text-white min-h-screen">
+    <!-- Header -->
+    <div class="bg-gradient-to-r from-red-600 to-purple-600 p-6 shadow-2xl">
         <div class="container mx-auto flex justify-between items-center">
-            <h1 class="text-xl font-bold text-red-500 flex items-center gap-2">
-                <span class="w-3 h-3 bg-red-500 rounded-full animate-pulse"></span>
+            <h1 class="text-3xl font-bold flex items-center gap-3">
+                <div class="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
                 Live Recorder Admin
             </h1>
-            <div class="flex items-center gap-4">
-                <div class="flex items-center gap-2 bg-gray-700/50 px-3 py-1 rounded-full">
-                    <span class="text-xs text-gray-400 uppercase font-bold tracking-wider">System</span>
-                    <button id="system-toggle" onclick="toggleSystem()"
-                        class="relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none bg-gray-600">
-                        <span id="system-toggle-knob"
-                            class="inline-block h-3 w-3 transform rounded-full bg-white transition-transform translate-x-1"></span>
-                    </button>
-                    <span id="system-status-text" class="text-xs font-bold text-gray-400">OFF</span>
+            <div class="flex items-center gap-6">
+                <div id="status-indicator" class="text-sm text-gray-200">
+                    Last Scan: Never
                 </div>
-
                 <button onclick="openLogModal()"
-                    class="text-gray-400 hover:text-white transition-colors p-2 hover:bg-gray-700 rounded-full"
-                    title="View Logs">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                    class="bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2 border border-white/20">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
                         stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
+                    View Logs
                 </button>
-
-                <div class="h-6 w-px bg-gray-700"></div>
-
-                <div id="status-indicator" class="text-xs text-gray-400 font-mono">
-                    Checking...
-                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" id="system-toggle" class="sr-only peer" onchange="toggleSystem()">
+                    <div
+                        class="w-14 h-7 bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-900 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-green-600">
+                    </div>
+                    <span class="ml-3 text-sm font-medium" id="system-status-text">ON</span>
+                </label>
             </div>
         </div>
-    </nav>
+    </div>
 
     <div class="container mx-auto p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
-
-        <!-- Left Column: Controls -->
+        <!-- Left Column: Configuration -->
         <div class="space-y-6">
-
             <!-- Target Users -->
             <div class="bg-gray-800 rounded-lg p-6 shadow-lg border border-gray-700">
-                <h2 class="text-lg font-semibold mb-4 text-blue-400">Target Users</h2>
-                <div class="flex gap-2 mb-4">
-                    <input type="text" id="target-user-input" placeholder="Username (e.g. casal321)"
-                        class="flex-1 bg-gray-700 border border-gray-600 rounded px-3 py-2 focus:outline-none focus:border-blue-500 text-white">
-                    <button onclick="addTargetUser()"
-                        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition-colors">
-                        Add
-                    </button>
-                </div>
-                <div id="target-users-list" class="space-y-2 max-h-60 overflow-y-auto">
-                    <!-- Users injected here -->
+                <h2 class="text-lg font-semibold mb-4 text-yellow-400">Priority Users</h2>
+                <div class="space-y-2">
+                    <div class="flex gap-2">
+                        <input type="text" id="user-input" placeholder="Add username"
+                            class="flex-1 bg-gray-700 border border-gray-600 rounded px-3 py-1 text-sm focus:outline-none focus:border-yellow-500 text-white">
+                        <button onclick="addTargetUser()"
+                            class="bg-yellow-600 hover:bg-yellow-700 text-white px-3 py-1 rounded text-sm transition-colors">
+                            +
+                        </button>
+                    </div>
+                    <div id="target-users-list" class="space-y-2 max-h-60 overflow-y-auto">
+                        <!-- Users injected here -->
+                    </div>
                 </div>
             </div>
 
@@ -248,32 +206,6 @@
             }
         }
 
-        function renderLogs(logs) {
-            const container = document.getElementById('log-container');
-            if (!logs || logs.length === 0) {
-                container.innerHTML = '<div class="text-gray-500 italic">No logs available.</div>';
-                return;
-            }
-            container.innerHTML = logs.map(log => {
-                const isError = log.includes('[ERROR]');
-                const colorClass = isError ? 'text-red-400' : 'text-green-400';
-                return `<div class="${colorClass} border-b border-gray-900/50 pb-1 mb-1 break-all">${log}</div>`;
-            }).join('');
-        }
-
-        function openLogModal() {
-            document.getElementById('log-modal').classList.remove('hidden');
-            document.getElementById('log-modal').classList.add('flex');
-            isLogModalOpen = true;
-            loadStatus(); // Force immediate update
-        }
-
-        function closeLogModal() {
-            document.getElementById('log-modal').classList.add('hidden');
-            document.getElementById('log-modal').classList.remove('flex');
-            isLogModalOpen = false;
-        }
-
         async function loadRecordings() {
             try {
                 const res = await fetch('/api/recordings');
@@ -309,11 +241,19 @@
                                                 Last: ${new Date(user.lastRecording).toLocaleString()}
                                             </div>
                                         </div>
-                                        <button onclick="toggleUserFiles('${user.username}')" class="text-gray-400 hover:text-white">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transform transition-transform" id="arrow-${user.username}" viewBox="0 0 20 20" fill="currentColor">
-                                                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-                                            </svg>
-                                        </button>
+                                        <div class="flex gap-2">
+                                            <button onclick="downloadAllUserFiles('${user.username}', '${cityGroup.city}')" class="text-green-400 hover:text-green-300 px-2 py-1 border border-green-500/30 rounded text-xs flex items-center gap-1" title="Download all videos">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
+                                                    <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                                </svg>
+                                                All
+                                            </button>
+                                            <button onclick="toggleUserFiles('${user.username}')" class="text-gray-400 hover:text-white">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transform transition-transform" id="arrow-${user.username}" viewBox="0 0 20 20" fill="currentColor">
+                                                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                                </svg>
+                                            </button>
+                                        </div>
                                     </div>
                                     <div id="files-${user.username}" class="hidden border-t border-gray-600 bg-black/20">
                                         <div class="max-h-60 overflow-y-auto p-2 space-y-2">
@@ -404,54 +344,37 @@
             }
         }
 
-        function updateSystemToggle(enabled) {
-            systemEnabled = enabled;
-            const btn = document.getElementById('system-toggle');
-            const knob = document.getElementById('system-toggle-knob');
-            const text = document.getElementById('system-status-text');
-
-            if (enabled) {
-                btn.classList.remove('bg-gray-600');
-                btn.classList.add('bg-green-600');
-                knob.classList.remove('translate-x-1');
-                knob.classList.add('translate-x-6');
-                text.innerText = 'ON';
-                text.classList.remove('text-gray-400');
-                text.classList.add('text-green-400');
-            } else {
-                btn.classList.add('bg-gray-600');
-                btn.classList.remove('bg-green-600');
-                knob.classList.add('translate-x-1');
-                knob.classList.remove('translate-x-6');
-                text.innerText = 'OFF';
-                text.classList.add('text-gray-400');
-                text.classList.remove('text-green-400');
-            }
-        }
-
         async function addTargetUser() {
-            const input = document.getElementById('target-user-input');
+            const input = document.getElementById('user-input');
             const username = input.value.trim();
             if (!username) return;
 
-            await fetch('/api/target-users', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username, action: 'add' })
-            });
-
-            input.value = '';
-            loadConfig();
+            try {
+                const res = await fetch('/api/add-target-user', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username })
+                });
+                const data = await res.json();
+                renderTargetUsers(data.targetUsers || []);
+                input.value = '';
+            } catch (e) {
+                console.error("Failed to add user", e);
+            }
         }
 
         async function removeTargetUser(username) {
-            if (!confirm(`Remove ${username}?`)) return;
-            await fetch('/api/target-users', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username, action: 'remove' })
-            });
-            loadConfig();
+            try {
+                const res = await fetch('/api/remove-target-user', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username })
+                });
+                const data = await res.json();
+                renderTargetUsers(data.targetUsers || []);
+            } catch (e) {
+                console.error("Failed to remove user", e);
+            }
         }
 
         async function addCity() {
@@ -459,41 +382,51 @@
             const city = input.value.trim();
             if (!city) return;
 
-            await fetch('/api/cities', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ city, action: 'add' })
-            });
-
-            input.value = '';
-            loadConfig();
+            try {
+                const res = await fetch('/api/add-city', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ city })
+                });
+                const data = await res.json();
+                renderCities(data.cities || []);
+                input.value = '';
+            } catch (e) {
+                console.error("Failed to add city", e);
+            }
         }
 
         async function removeCity(city) {
-            if (!confirm(`Remove ${city}?`)) return;
-            await fetch('/api/cities', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ city, action: 'remove' })
-            });
-            loadConfig();
+            try {
+                const res = await fetch('/api/remove-city', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ city })
+                });
+                const data = await res.json();
+                renderCities(data.cities || []);
+            } catch (e) {
+                console.error("Failed to remove city", e);
+            }
         }
 
-        // Renderers
+        // Rendering
+        function updateSystemToggle(enabled) {
+            systemEnabled = enabled;
+            document.getElementById('system-toggle').checked = enabled;
+            document.getElementById('system-status-text').innerText = enabled ? 'ON' : 'OFF';
+        }
+
         function renderTargetUsers(users) {
             const container = document.getElementById('target-users-list');
             if (users.length === 0) {
-                container.innerHTML = '<div class="text-gray-500 text-sm italic">No target users.</div>';
+                container.innerHTML = '<div class="text-gray-500 text-sm italic">No priority users added.</div>';
                 return;
             }
-            container.innerHTML = users.map(u => `
-                <div class="flex justify-between items-center bg-gray-700 px-3 py-2 rounded">
-                    <span class="text-sm font-medium">${u}</span>
-                    <button onclick="removeTargetUser('${u}')" class="text-red-400 hover:text-red-300">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
-                        </svg>
-                    </button>
+            container.innerHTML = users.map(user => `
+                <div class="flex justify-between items-center bg-gray-700/50 px-3 py-2 rounded border border-gray-600">
+                    <span class="text-sm">${user}</span>
+                    <button onclick="removeTargetUser('${user}')" class="text-red-400 hover:text-red-300 text-xs">×</button>
                 </div>
             `).join('');
         }
@@ -501,26 +434,61 @@
         function renderCities(cities) {
             const container = document.getElementById('cities-list');
             if (cities.length === 0) {
-                container.innerHTML = '<div class="text-gray-500 text-xs italic">No cities configured.</div>';
+                container.innerHTML = '<div class="text-gray-500 text-sm italic w-full">No cities configured.</div>';
                 return;
             }
-            container.innerHTML = cities.map(c => `
-                <div class="flex items-center bg-gray-700 text-xs px-2 py-1 rounded text-gray-300 border border-gray-600 gap-2 group hover:border-red-500/50 transition-colors">
-                    <span>${c}</span>
-                    <button onclick="removeCity('${c}')" class="text-gray-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity">
-                        ×
-                    </button>
+            container.innerHTML = cities.map(city => `
+                <div class="flex items-center gap-2 bg-gray-700 px-3 py-1 rounded-full text-sm border border-gray-600">
+                    <span>${city}</span>
+                    <button onclick="removeCity('${city}')" class="text-red-400 hover:text-red-300 text-xs font-bold">×</button>
                 </div>
             `).join('');
         }
 
-        // Init
-        loadConfig();
-        loadStatus();
-        loadRecordings();
+        function renderLogs(logs) {
+            const container = document.getElementById('log-container');
+            if (!logs || logs.length === 0) {
+                container.innerHTML = '<div class="text-gray-500 italic">No logs available.</div>';
+                return;
+            }
 
-        // Poll status
-        setInterval(loadStatus, 5000);
+            container.innerHTML = logs.slice(-100).map(log => {
+                const timestamp = log.timestamp ? new Date(log.timestamp).toLocaleTimeString() : '';
+                const level = log.level || 'info';
+                const message = log.message || log;
+
+                let colorClass = 'text-gray-400';
+                if (level === 'ERROR') colorClass = 'text-red-400';
+                else if (level === 'INFO') colorClass = 'text-green-400';
+
+                return `<div class="${colorClass}">[${timestamp}] [${level}] ${message}</div>`;
+            }).join('');
+
+            container.scrollTop = container.scrollHeight;
+        }
+
+        // Log Modal
+        function openLogModal() {
+            document.getElementById('log-modal').style.display = 'flex';
+            isLogModalOpen = true;
+            loadStatus(); // Refresh to get latest logs
+        }
+
+        function closeLogModal() {
+            document.getElementById('log-modal').style.display = 'none';
+            isLogModalOpen = false;
+        }
+
+        // Initialization
+        loadConfig();
+        loadRecordings();
+        loadStatus();
+
+        // Auto-refresh every 5 seconds
+        setInterval(() => {
+            loadStatus();
+            loadRecordings();
+        }, 5000);
     </script>
 </body>
 
